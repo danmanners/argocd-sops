@@ -1,19 +1,17 @@
-ARG ARGOCD_VERSION="v2.1.1"
-ARG KSOPS_VERSION="3.0.1"
+ARG ARGOCD_VERSION="v2.2.3"
+ARG  KSOPS_VERSION="3.0.1"
 
 ### Fetch the SOPS and KSOPS binaries
-FROM alpine:3.14 as fetch
-# Loading in our Args
-ARG KSOPS_VERSION
+FROM docker.io/alpine:3.15 as fetch
 
-# Installing requirements
-RUN apk add --no-cache curl tar && \
-    curl -o /tmp/ksops.tar.gz   -L https://github.com/viaduct-ai/kustomize-sops/releases/download/v${KSOPS_VERSION}/ksops_${KSOPS_VERSION}_Linux_$(uname -m).tar.gz && \
-    tar -xvf /tmp/ksops.tar.gz  -C /tmp
+# Environment Setup
+ENV XDG_CONFIG_HOME="${HOME}/.config"
+
+RUN apk add --no-cache curl \
+    && sh -c 'export XDG_CONFIG_HOME="${HOME}"/.config; curl -s https://raw.githubusercontent.com/viaduct-ai/kustomize-sops/master/scripts/install-ksops-archive.sh | sh'
 
 ### Provision the new ArgoCD Container
 FROM quay.io/argoproj/argocd:${ARGOCD_VERSION} as argocd
-
 # Need to do installs as root
 USER root
 
@@ -24,8 +22,8 @@ ARG KSOPS_PATH="/.config/kustomize/plugin/viaduct.ai/v1/ksops"
 RUN mkdir -p $KSOPS_PATH
 
 # Copy the binaries over from the 'fetch' container, and ensure they're executable
-COPY --from=fetch /tmp/ksops $KSOPS_PATH/ksops
-RUN chmod a+x "$KSOPS_PATH/ksops"
+COPY --from=fetch /root/.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops /usr/local/bin/ksops
+RUN chmod a+x /usr/local/bin/ksops
 
 # Install tools for KSOPS and AWSCLI
 RUN apt-get update && \

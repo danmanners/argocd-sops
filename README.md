@@ -4,21 +4,25 @@ This modified container should be used in conjunction with SOPS/KSOPS encrypted 
 
 ## Build Process
 
-Using [`kim`](https://github.com/rancher/kim), we can build the container.
-
 ```bash
-# Build Container
-kim build -n kim --tag docker.io/danielmanners/argocd-sops:v2.1.1 --no-cache --file Containerfile .
+# Create the ArgoCD SOPS Manifest
+buildah manifest create argocd-sops
 
-# Log into Docker Hub
-read -s dockeriopass
-echo "$dockeriopass" | kim builder login docker.io -u username --password-stdin
+# Build the amd64 container
+buildah bud --manifest argocd-sops \
+    --tag ghcr.io/danmaners/argo-repo-server:e.2.2.3 \
+    --arch amd64 .
 
-# Push the docker container
-kim image push docker.io/danielmanners/argocd-sops:v2.1.1
+# Ensure that we're logged into GitHub Container Registry
+echo "$(cat ~/.github/token|head -1)" | \
+    buildah login --password-stdin \
+    --username danmanners ghcr.io
+
+# Push the Buildah Manifest to GHCR
+buildah manifest push \
+    --all argocd-sops \
+    docker://ghcr.io/danmanners/argo-repo-server:e.2.2.3
 ```
-
-If you have installed `kim` in a non-default namespace, ensure you add `-n $namespace` after kim to each command above.
 
 ## Verifying Container Efficiency
 

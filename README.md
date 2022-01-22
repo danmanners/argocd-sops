@@ -6,11 +6,11 @@ This modified container should be used in conjunction with SOPS/KSOPS encrypted 
 
 ```bash
 # Create the ArgoCD SOPS Manifest
-buildah manifest create argocd-sops
+buildah manifest create argocd-sops-v222
 
 # Build the amd64 container
 buildah bud --manifest argocd-sops \
-    --tag ghcr.io/danmaners/argo-repo-server:e.2.2.3 \
+    --tag ghcr.io/danmaners/argo-repo-server:e.v2.2.2 \
     --arch amd64 .
 
 # Ensure that we're logged into GitHub Container Registry
@@ -21,7 +21,7 @@ echo "$(cat ~/.github/token|head -1)" | \
 # Push the Buildah Manifest to GHCR
 buildah manifest push \
     --all argocd-sops \
-    docker://ghcr.io/danmanners/argo-repo-server:e.2.2.3
+    docker://ghcr.io/danmanners/argo-repo-server:e.v2.2.2
 ```
 
 ## Verifying Container Efficiency

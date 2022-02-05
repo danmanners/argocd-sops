@@ -1,4 +1,4 @@
-ARG ARGOCD_VERSION="v2.2.2"
+ARG ARGOCD_VERSION="v2.2.5"
 ARG  KSOPS_VERSION="3.0.1"
 
 ### Fetch the SOPS and KSOPS binaries

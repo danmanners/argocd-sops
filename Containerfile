@@ -1,5 +1,5 @@
-ARG ARGOCD_VERSION="v2.2.5"
-ARG  KSOPS_VERSION="3.0.1"
+ARG ARGOCD_VERSION="v2.3.3"
+ARG  KSOPS_VERSION="3.0.2"
 
 ### Fetch the SOPS and KSOPS binaries
 FROM docker.io/alpine:3.15 as fetch
